@@ -1,0 +1,43 @@
+2022-06-17 13:54:01,618:INFO: Nombre d'images dans le dataset: 104
+2022-06-17 13:54:01,618:INFO: Nombre de classes dans le dataset: 2
+2022-06-17 13:54:01,618:INFO: --- ELAPSED TIME : 0.12396097183227539 seconds ---
+2022-06-17 13:55:01,156:INFO: Nombre d'images dans le dataset: 104
+2022-06-17 13:55:01,156:INFO: Nombre de classes dans le dataset: 2
+2022-06-17 13:55:01,156:INFO: --- ELAPSED TIME : 0.11996221542358398 seconds ---
+2022-06-17 13:55:51,955:INFO: Il y a 19 de photos en echelle de gris
+2022-06-17 13:55:51,955:INFO: Il y a 2 de photos avec pb d'annotation
+2022-06-17 13:55:51,956:INFO: 68    01954.jpeg
+71    01957.jpeg
+Name: image_file, dtype: object 
+2022-06-17 13:55:51,958:INFO: Il y a 0 de photos sur-exposees
+2022-06-17 13:55:51,960:INFO: Series([], Name: image_file, dtype: object)
+2022-06-17 13:55:51,961:INFO: Il y a 0 de photos sous-exposees
+2022-06-17 13:55:51,962:INFO: Series([], Name: image_file, dtype: object)
+2022-06-17 13:55:51,962:INFO: Il y a 1 de photos avec trop de brightness
+2022-06-17 13:55:51,963:INFO: 84    01971.jpeg
+Name: image_file, dtype: object
+2022-06-17 13:55:51,964:INFO: Il y a 19 de photos avec pas assez de brightness
+2022-06-17 13:55:51,965:INFO: 3     01877.jpeg
+6     01880.jpeg
+7     01881.jpeg
+10    01884.jpeg
+12    01887.jpeg
+19    01895.jpeg
+20    01897.jpeg
+26    01905.jpeg
+29    01908.jpeg
+37    01918.jpeg
+38    01919.jpeg
+39    01920.jpeg
+48    01929.jpeg
+51    01934.jpeg
+62    01945.jpeg
+66    01952.jpeg
+72    01958.jpeg
+73    01960.jpeg
+95    01986.jpeg
+Name: image_file, dtype: object
+2022-06-17 13:55:51,968:INFO: Il y a 2 de photos suspectee blurred - threshold=0.01
+2022-06-17 13:55:51,969:INFO: 83    01970.jpeg
+95    01986.jpeg
+Name: image_file, dtype: object
