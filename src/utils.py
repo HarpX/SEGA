@@ -8,6 +8,7 @@ import pandas as pd
 from pathlib import Path
 import random
 from PIL import Image
+import tensorflow as tf
 
 def set_logger(log_path):
   """Sets the logger to log info in terminal and file `log_path`.
@@ -197,4 +198,192 @@ def show_images_from_df(df_path_dir, channels=3, output_dir=".", filename="image
     i += 1
   output_file = os.path.normpath(os.path.join(output_dir, filename))
   plt.savefig(output_file)
+  plt.show()
+
+
+def build_dataset(X, y,
+                  is_training,
+                  is_augm=False,
+                  channels=3,
+                  scale=True,  # -_-' no scaling for EfficientNet from keras.applications!
+                  img_size=224,
+                  data_from="files",  # files, tfrecords, (pixels) values
+                  batch_size=32,
+                  drop_remainder=False):
+  """Retourne un dataset tensorflow (Dataset.from_tensor_slices)
+     1. from_tensor_slices
+     2. normalisation (load + resize)
+     3. shuffle (only if is_training)
+     4. batch
+     5. data augmentation (only if is_training & is_augm)
+     return dataset (no prefetch)
+  """
+
+  # 1. from_tensor_slices
+  ds = tf.data.Dataset.from_tensor_slices((tf.constant(X), tf.constant(y)))
+
+  # 2. normalisation (load + resize)
+  dataset = ds.map(lambda image, label: (normalize_img(image, img_size, channels, data_from, scale), label))
+
+  # 3. shuffle
+  if is_training:
+    num_samples = min(1000, len(y))
+    dataset = dataset.shuffle(num_samples)  # num.samples
+
+  # 4. batch
+  dataset = dataset.batch(batch_size, drop_remainder=drop_remainder)
+
+
+  # 5. data augmentation
+  if (is_training and is_augm):
+    dataset = dataset.map(lambda image, label: (data_augmentation(image), label))
+
+  dataset = dataset.repeat(count=3)
+
+  return dataset
+
+def resize_img(img, img_size):
+  """Fonction de resize qui retient le ratio pour l'appliquer au key points"""
+  # old_size = tf.shape(img)[:2]
+  img_size = tf.constant(img_size)
+  im = tf.image.resize(img, img_size)
+  # ratio = tf.math.divide(img_size,old_size)
+  return im  # ratio
+
+
+def normalize_img(input_image, img_size, channels, data_from, scale):
+  """Obtain the image from the filename (for both training and validation).
+
+  The following operations are applied:
+      1. read & decode : Decode the image from jpeg/png format
+      2. resize : change size of image
+      3. cast : convert to float
+      4. scale : Convert to range [0, 1]
+  """
+  # 1. read & decode : Decode the image from jpeg/png format
+  if (data_from == "files" or data_from == "tfrecords"):
+    image_string = tf.io.read_file(input_image)
+    image = tf.cond(
+      tf.image.is_jpeg(image_string),
+      lambda: tf.image.decode_jpeg(image_string, channels=3),
+      lambda: tf.image.decode_png(image_string, channels=3))
+    # image = tf.image.decode_jpeg(image_string, channels=channels)
+    # image = tf.image.decode_png(image_string, channels=channels)
+  else:  # attention ici ce sont les values des pixels [0,255]
+    image = input_image
+
+  # 2. resize : change size of image
+  image = tf.image.resize(image, [img_size, img_size])
+
+  # 3. cast : convert to float
+  image = tf.cast(image, tf.float32)
+
+  # 4. scale : Convert to range [0, 1]
+  if scale:
+    image = image / 255.
+  return image
+
+
+def data_augmentation(X):
+  """Data augmentation of training images
+
+  The following operations are applied randomly:
+      1. flip_up_down
+      2. flip_left_righ
+      3. identity
+      4. rgb_to_grayscale
+  """
+
+  def V_Flip(X):
+    X = tf.image.flip_up_down(X)
+    return X
+
+  def H_Flip(X):
+    X = tf.image.flip_left_right(X)
+    return X
+
+  def Contrast(X):
+    X = tf.image.random_contrast(X, lower=0.0, upper=1.0)
+    return X
+
+  def Brightness(X):
+    X = tf.image.random_brightness(X, 0.2)
+    return X
+
+  def Identity(X):
+    return X
+
+  def GreyScale(X):
+    X = tf.image.rgb_to_grayscale(X)
+    X = tf.stack([X, X, X], 2)[:, :, :, 0]
+    return X
+
+  # Utilisation des outils random de tf pour bien que ca fonctionne avec le format des tenseurs symboliques
+  p = tf.random.uniform(shape=[1], minval=0, maxval=5, dtype=tf.dtypes.int32)
+  X = tf.cond(p == 0, lambda: Identity(X), lambda: Identity(X))
+  X = tf.cond(p == 1, lambda: H_Flip(X), lambda: Identity(X))
+  X = tf.cond(p == 2, lambda: V_Flip(X), lambda: Identity(X))
+  X = tf.cond(p == 3, lambda: Contrast(X), lambda: Identity(X))
+  X = tf.cond(p == 4, lambda: Brightness(X), lambda: Identity(X))
+  #X = tf.cond(p == 3, lambda: GreyScale(X), lambda: Identity(X))
+  return X
+
+def plot_loss_curves(history):
+  """
+  Returns separate loss curves for training and validation metrics.
+  Args:
+    history: TensorFlow model History object (see: https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/History)
+  """
+  loss = history.history['loss']
+  val_loss = history.history['val_loss']
+
+  accuracy = history.history['accuracy']
+  val_accuracy = history.history['val_accuracy']
+
+  epochs = range(len(history.history['loss']))
+
+  # Plot loss
+  plt.plot(epochs, loss, label='training_loss')
+  plt.plot(epochs, val_loss, label='val_loss')
+  plt.title('Loss')
+  plt.xlabel('Epochs')
+  plt.legend()
+
+  # Plot accuracy
+  plt.figure()
+  plt.plot(epochs, accuracy, label='training_accuracy')
+  plt.plot(epochs, val_accuracy, label='val_accuracy')
+  plt.title('Accuracy')
+  plt.xlabel('Epochs')
+  plt.legend()
+  plt.show()
+
+def plot_loss_curves_mae(history):
+  """
+  Returns separate loss curves for training and validation metrics.
+  Args:
+    history: TensorFlow model History object (see: https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/History)
+  """
+  loss = history.history['loss']
+  val_loss = history.history['val_loss']
+
+  mae = history.history['mae']
+  val_mae = history.history['val_mae']
+
+  epochs = range(len(history.history['loss']))
+
+  # Plot loss
+  plt.plot(epochs, loss, label='training_loss')
+  plt.plot(epochs, val_loss, label='val_loss')
+  plt.title('Loss')
+  plt.xlabel('Epochs')
+  plt.legend()
+
+  # Plot accuracy
+  plt.figure()
+  plt.plot(epochs, mae, label='training_mean_absolute_error')
+  plt.plot(epochs, val_mae, label='val_mean_absolute_error')
+  plt.title('mean_absolute_error')
+  plt.xlabel('Epochs')
+  plt.legend()
   plt.show()
