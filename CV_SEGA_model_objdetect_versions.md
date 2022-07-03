@@ -25,13 +25,28 @@ dupliquer les corrections de la fonction V_Flip, get_random_transform te magic_l
 tester d'autres variantes de back bones
 dupliquer la modif du split
 
+# Choix des dimensions d'entrée en fonction du modèle
+    EfficientNetB0 - (224, 224, 3)
+    EfficientNetB1 - (240, 240, 3)
+    EfficientNetB2 - (260, 260, 3)
+    EfficientNetB3 - (300, 300, 3)
+    EfficientNetB4 - (380, 380, 3)
+    EfficientNetB5 - (456, 456, 3)
+    EfficientNetB6 - (528, 528, 3)
+    EfficientNetB7 - (600, 600, 3)
 
 # CV_SEGA_model_objdetect_4 :
 - intégration d'un modèle de type Yolo "simplifié"
 - extraction du log des versions de notebook
 - correction de la fonction de data augmentation qui ne retournait pas la valeur dans la bonne variable
 - intégration de transformations affines
-- révisionde l'approche de traitement es coordonnées de BB. On va utiliser x_moy et y_moy
+- révision de l'approche de traitement es coordonnées de BB. On va utiliser x_moy et y_moy
+
+    # CV_SEGA_model_objdetect_4-1 :
+    - mise à jour des fonction de chargements de dataset depuis le CV_SEGA_model_objdetect_3_1
+    - Ajout du dataset de BG de stanford
+ 
+
 
 # CV_SEGA_model_objdetect_3 :
 
@@ -42,11 +57,25 @@ dupliquer la modif du split
     Notes : les résultats ne sont pas bons. Le modèle prédit systématiquement les mêmes dimensions de BB. La probabilité de présence d'objet reste à 1 quoiqu'il arrive.
 
     # CV_SEGA_model_objdetect_3_1 :
+    - changement du csv pour chargement afin de récupérer plus de données sur lesimages
     - utilisation de x_moy et y_moy
+    - changement du train_test split
+    - modification de la taille pour redimensionnement
     - mise en place de data augmentation
-    - Changement du backbone par un EfficientNetB7
+    - révision de la fonction de chargement, redimensionnement et data augmentation
+    - ajustement des générateurs
+    - Changement du backbone par un EfficientNetB2
 
+    Perfos après un entrainement de 40 epochs :
+        loss: 0.1023 - metric_iou: 0.6971 - metric_confident: 1.0000
 
+    Perfos après un défreeze de 5 couches et entrainement de 40 epochs :
+        loss: 0.0793 - metric_iou: 0.7185 - metric_confident: 1.0000 - val_loss: 0.0270 - val_metric_iou: 0.8031 - val_metric_confident: 1.0000
+
+    # Conclusions :
+    Le problème de constance des coordonnées de BB est à présent réglé.
+    Les performances sont correctes mais on détecte quand même des bennes sur des images qui n'en n'ont pas.
+    Cette technique ne permet de détecter qu'une seule benne sur l'image.
 
 # CV_SEGA_model_objdetect_2 :
 
@@ -111,6 +140,10 @@ dupliquer la modif du split
     loss: 0.1282 - mean_squared_error: 0.9660
 
     # Conclusions :
+    Le problème de constance des coordonnées de BB est toujours présent. Une erreur doit se trouver au niveau de la partie chargement.
     L'EfficientNetB7 a un impact positif sur ler performance du modèle.
     Le cosinus decay est à reconduire.
     Les changements d'optimizer n'ont pas eu d'impact.
+
+
+
