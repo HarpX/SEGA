@@ -1,6 +1,7 @@
 ###############################################################################################
 #######                          Suivi des versions de notebook                         #######
 #######                              CV_SEGA_model_objdetect                            #######
+#######                                 approche type Yolo                              #######
 ###############################################################################################
 
 
@@ -9,21 +10,13 @@
 # OPTIMS :
 
 Traiter le cas où j'ai plusieurs BB sur lamême image
-Est-ce qu'il ne faut pas remélanger le dataset ?
-Pour les landmarks / keypoints on utilise un algo qui détecte la zone puis qui donne les landmarks à partir de la zone à traiter.
-Object detection -> Yolo est top
-Attention, il semble y avoir des images dupliquées dans le dataset, regarder ça dans l'explo
-Mise en place d'un LR sinus
-intégrer un defreeze des couches pour pour spécifier le modèle sur notre application
+Voir pour mettre en place des metriques
 ceuser la data augmentation (lum / expo, ...)
-Travailler sur le type de backbone (Effnet XX, ResNet, DARKNet...)
 Voir l'utilisation de decay dans le lr
+intégrer systématiquement l'IOU
 
-Su NB v1 à 3 :
-filtrer à une seule BB pour les premères itérations des NB
-dupliquer les corrections de la fonction V_Flip, get_random_transform te magic_loader
-tester d'autres variantes de back bones
-dupliquer la modif du split
+Sur NB v1 à 2 :
+- Appliquer les corrections mise en place dans les NB de 1 à 2
 
 # Choix des dimensions d'entrée en fonction du modèle
     EfficientNetB0 - (224, 224, 3)
@@ -35,6 +28,13 @@ dupliquer la modif du split
     EfficientNetB6 - (528, 528, 3)
     EfficientNetB7 - (600, 600, 3)
 
+# CV_SEGA_model_objdetect_5 :
+- Mise en application du notebook 8 du cours sur notre problèmatique
+
+Que faire du set de stanford dans ce notebook
+
+
+
 # CV_SEGA_model_objdetect_4 :
 - intégration d'un modèle de type Yolo "simplifié"
 - extraction du log des versions de notebook
@@ -42,11 +42,21 @@ dupliquer la modif du split
 - intégration de transformations affines
 - révision de l'approche de traitement es coordonnées de BB. On va utiliser x_moy et y_moy
 
-    # CV_SEGA_model_objdetect_4-1 :
+    # CV_SEGA_model_objdetect_4_1 :
     - mise à jour des fonction de chargements de dataset depuis le CV_SEGA_model_objdetect_3_1
     - Ajout du dataset de BG de stanford
- 
 
+    # CV_SEGA_model_objdetect_4_2 :
+    Essai effectué avec une seule BB par image
+    - Adaptation des sorties des générateurs pour donner des matrices 8x8
+    - correction du split et suppr de la proba de présence
+    - ajout d'une métrique sur la probabilité
+    - ajout d'un learning rate cyclique
+    - mise en place d'un optimizer de type SGD car l'ADAM restait bloqué
+    # CV_SEGA_model_objdetect_4_3 :
+    Essai effectué avec une pluseurs BB par image
+    - travail sur la fonction d'intégration des différentes BB dans la matrice Yolo
+    - désactivation de la partie data augmentation pour cet essai
 
 # CV_SEGA_model_objdetect_3 :
 
@@ -70,7 +80,7 @@ dupliquer la modif du split
         loss: 0.1023 - metric_iou: 0.6971 - metric_confident: 1.0000
 
     Perfos après un défreeze de 5 couches et entrainement de 40 epochs :
-        loss: 0.0793 - metric_iou: 0.7185 - metric_confident: 1.0000 - val_loss: 0.0270 - val_metric_iou: 0.8031 - val_metric_confident: 1.0000
+        loss: 0.0967 - metric_iou: 0.7235 - metric_confident: 1.0000 - val_loss: 0.0361 - val_metric_iou: 0.7483 - val_metric_confident: 1.0000
 
     # Conclusions :
     Le problème de constance des coordonnées de BB est à présent réglé.
