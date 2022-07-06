@@ -9,14 +9,28 @@
 
 # OPTIMS :
 
-Traiter le cas où j'ai plusieurs BB sur lamême image
-Voir pour mettre en place des metriques
-ceuser la data augmentation (lum / expo, ...)
-Voir l'utilisation de decay dans le lr
-intégrer systématiquement l'IOU
+Prioritaire :
+Désactiver le filtrage des petites BB dans l'explo car on se retrouve avec des containers sans BB. Cela permettra d'améliorer la perfo
+Refaire tourner la branche 4 avec le nouveau dataset
+Sur la branche 5 :
+    - Voir pour mettre en place des metriques
+        https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/tf2_detection_zoo.md
+        https://github.com/tensorflow/models/blob/master/research/object_detection/colab_tutorials/eager_few_shot_od_training_tf2_colab.ipynb
+        l'AP, mAP ?
+    - ajuster le nombre de classe en réduisant à 1 car il n'y en a qu'une
+    - Voir pour activer la GPU sur colab
+        with tf.device()
+    - Voir pour sauvegarder l'entrainement
+    - Travaller sur le learning rate
+    - Que faire du set de stanford dans ce notebook, est-ce utile ?
+    - quel est le type de modèle que j'utilise ?
+    - voir pour utiliser plus de modèles
+    - grossir la résolution ?
+    - Voir pour faire tourner le notebook en local et non sur colab
 
-Sur NB v1 à 2 :
-- Appliquer les corrections mise en place dans les NB de 1 à 2
+Optionnel :
+    Sur NB v1 à 2 :
+    - Appliquer les corrections mise en place dans les NB de 1 à 2
 
 # Choix des dimensions d'entrée en fonction du modèle
     EfficientNetB0 - (224, 224, 3)
@@ -29,13 +43,19 @@ Sur NB v1 à 2 :
     EfficientNetB7 - (600, 600, 3)
 
 # CV_SEGA_model_objdetect_5 :
+
+Intentions : Approche de prédiction de plusieurs BB à partir d'une image ainsi que la probabilité de présence de cette BB. Utilisatio d'un modèle tensorflow pré entrainné.
+
 - Mise en application du notebook 8 du cours sur notre problèmatique
-
-Que faire du set de stanford dans ce notebook
-
-
+- La détection en multi BB fonctionne. L'entrainement sur un petit nombre d'epochs génère parfois des détections hazardeuses.
+    # CV_SEGA_model_objdetect_5_1 :
+    Epuration du notebook
+    entrainement sur 5 epochs
 
 # CV_SEGA_model_objdetect_4 :
+
+    Intentions : Approche de prédiction de plusieurs BB à partir d'une image ainsi que la probabilité de présence de cette BB.
+
 - intégration d'un modèle de type Yolo "simplifié"
 - extraction du log des versions de notebook
 - correction de la fonction de data augmentation qui ne retournait pas la valeur dans la bonne variable
@@ -53,10 +73,14 @@ Que faire du set de stanford dans ce notebook
     - ajout d'une métrique sur la probabilité
     - ajout d'un learning rate cyclique
     - mise en place d'un optimizer de type SGD car l'ADAM restait bloqué
+
     # CV_SEGA_model_objdetect_4_3 :
-    Essai effectué avec une pluseurs BB par image
+    Essai effectué avec pluseurs BB par image
+    - ajustement du dataset et mise en forme des données
     - travail sur la fonction d'intégration des différentes BB dans la matrice Yolo
     - désactivation de la partie data augmentation pour cet essai
+
+
 
 # CV_SEGA_model_objdetect_3 :
 
