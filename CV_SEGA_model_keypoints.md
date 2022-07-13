@@ -45,8 +45,7 @@ Optionnel :
 
     loss: 0.1325 - mean_absolute_error: 0.1325 - val_loss: 0.0912 - val_mean_absolute_error: 0.0912
 
-Essayer albumentation par la suite
-/255 de l'image ? -> Impact !!!!!!!!!!
+Essayer albumentation par la suite https://albumentations.ai/
 intégrer le gradcam
 
 
