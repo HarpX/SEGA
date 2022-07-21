@@ -76,26 +76,26 @@ Optionnel :
 
     Intentions : tester l'architecture (EfficientNetB5) précédemment créée sur un dataset provisoire. 
 
-    - ajout de la partie data augm
+    - ajout de la partie data augm (maison)
 
 
+# CV_SEGA_model_keypoints_2_4 :
 
-
+    Intentions : même notebook que les précédent mais avec un backbone VGG16
 
 tester le VGG16
 
-forçage installé dans le 3_1 pour le dev de la partir dataaug
+
 
 Reprendre es notes de cahier
-travailler sur de la data augmentation
+
+Pourquoi on n'utiliserai pas un GAN avec un unet ?
 essayer dataug
 Essayer albumentation par la suite https://albumentations.ai/
-Pourquoi on n'utiliserai pas un GAN avec un unet ?
+
 intégrer le gradcam ou feature map
 Travailler sur une loss adaptée
 Construire des métriques
-
-
 
     # Conclusions :
     ...
